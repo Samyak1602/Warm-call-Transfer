@@ -142,17 +142,22 @@ export default function LiveRoom({ wsUrl, token }) {
   };
 
   const updateParticipantsList = (room) => {
-    if (!room) return;
+    if (!room || !room.remoteParticipants) return;
     
-    const remoteParticipants = Array.from(room.remoteParticipants.values()).map(participant => ({
-      identity: participant.identity,
-      isSpeaking: participant.isSpeaking,
-      audioTrack: participant.getTrackPublication(Track.Source.Microphone)?.track,
-      metadata: participant.metadata
-    }));
-    
-    console.log('LiveRoom: Updated participants list:', remoteParticipants.map(p => p.identity));
-    setParticipants(remoteParticipants);
+    try {
+      const remoteParticipants = Array.from(room.remoteParticipants.values()).map(participant => ({
+        identity: participant.identity,
+        isSpeaking: participant.isSpeaking,
+        audioTrack: participant.getTrackPublication(Track.Source.Microphone)?.track,
+        metadata: participant.metadata
+      }));
+      
+      console.log('LiveRoom: Updated participants list:', remoteParticipants.map(p => p.identity));
+      setParticipants(remoteParticipants);
+    } catch (error) {
+      console.error('LiveRoom: Error updating participants list:', error);
+      setParticipants([]);
+    }
   };
 
   const disconnectFromRoom = async () => {
